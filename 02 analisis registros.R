@@ -27,4 +27,28 @@ ggplot(data = agp_detalle %>% filter(servicio=="Pasajeros"),aes(x=fecha_registro
   xlab("fecha de registro")+ylab("cantidad de pasajeros")+scale_x_datetime(date_breaks='2 week')+
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
+freq(agp_detalle,c("puerto"))
+
+cross_plot(agp_detalle, str_input="puerto", str_target="sentido")
+
+#sumarizar pasajeros x dia
+
+cant_pasajeros <- agp_detalle %>% group_by(fecha=as.Date(fecha_registro),sentido) %>% summarise(tot_pasajeros=sum(cant_pasajeros),tot_trip=sum(cant_tripulantes))
+ggplot(data = cant_pasajeros,aes(x=fecha,y=tot_pasajeros,colour=sentido))+geom_line()+
+  xlab("fecha de registro")+ylab("cantidad de pasajeros")+scale_x_date(date_breaks='2 week')+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+#cantidad de pasajeros a mayo del 2016
+
+cantidad_anio <- agp_detalle %>% filter(servicio=='Pasajeros' & sentido=='Entrada' & anio %in% c(2016,2017) & mes<6) %>% group_by(anio,mes) %>% summarise(tot_pasajeros=sum(cant_pasajeros))
+
+ggplot(cantidad_anio,aes(x=mes,tot_pasajeros))+geom_col(aes(fill=factor(anio)), position = "dodge")+
+  ylab('pasajeros')+guides(fill=guide_legend(title="Anio"))
+
+cantidad_barcos <- agp_detalle %>% filter(servicio=='Pasajeros' & sentido=='Entrada' & anio %in% c(2016,2017) & mes<6) %>% group_by(anio,mes) %>% summarise(tot_barcos=n())
+
+ggplot(cantidad_barcos,aes(x=mes,tot_barcos))+geom_col(aes(fill=factor(anio)), position = "dodge")+
+  ylab('barcos')+guides(fill=guide_legend(title="Anio"))
+
+#merge de codigos imo para obtener el pais de la bandera
 
